@@ -13,7 +13,7 @@ from libcloud.types import Provider
 from libcloud.providers import get_driver
 from libcloud.deployment import MultiStepDeployment, ScriptDeployment, SSHKeyDeployment
 from libcloud.ssh import SSHClient, ParamikoSSHClient
-import os, sys, string, ConfigParser, socket
+import os, sys, string, ConfigParser, socket, getopt
 import fabric.api as fabric
 import time
 
