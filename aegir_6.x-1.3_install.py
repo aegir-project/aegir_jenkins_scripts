@@ -4,13 +4,9 @@ from libcloud.types import Provider
 from libcloud.providers import get_driver
 from libcloud.deployment import MultiStepDeployment, ScriptDeployment, SSHKeyDeployment
 from libcloud.ssh import SSHClient, ParamikoSSHClient
-import libcloud.security
 import os, sys, string, ConfigParser, socket
 import fabric.api as fabric
 import time
-
-libcloud.security.VERIFY_SSL_CERT = True
-
 
 # Fetch some values from the config file
 config = ConfigParser.RawConfigParser()
@@ -50,67 +46,59 @@ def dependency_check():
 # Prepare a basic firewall
 def fab_prepare_firewall():
         print "===> Setting a little firewall"
-        fabric.run("for source in 95.142.164.178 59.167.182.161 174.136.104.138 217.155.126.38; do iptables -I INPUT -s $source -p tcp --dport 22 -j ACCEPT; iptables -I INPUT -s $source -p tcp --dport 80 -j ACCEPT; done; iptables -A INPUT -m state --state ESTABLISHED,RELATED -j ACCEPT; iptables --policy INPUT DROP", pty=True)
+        fabric.run("for source in 95.142.164.178 59.167.182.161 174.136.104.138; do iptables -I INPUT -s $source -p tcp --dport 22 -j ACCEPT; iptables -I INPUT -s $source -p tcp --dport 80 -j ACCEPT; done; iptables -A INPUT -m state --state ESTABLISHED,RELATED -j ACCEPT; iptables --policy INPUT DROP", pty=True)
 
-# Fabric command to add the apt sources
-def fab_add_apt_sources():
-        print "===> Adding apt sources"
-        # Add the apt-key for Koumbit.
-        fabric.run("curl http://debian.koumbit.net/debian/key.asc | apt-key add -", pty=True)
-        # Add the unstable Koumbit repositories, these should contain the dev version of Aegir.
-        fabric.run("echo 'deb http://debian.koumbit.net/debian unstable main' >> /etc/apt/sources.list", pty=True)
-        # Add the squeeze-backports repo for Drush.
-        fabric.run("echo 'deb http://backports.debian.org/debian-backports squeeze-backports main' >> /etc/apt/sources.list", pty=True)
-        # Pin to using the version of Drush from squeeze-backports, so we use a 'stable' version.
-        fabric.run("echo 'Package: drush' >> /etc/apt/preferences", pty=True)
-        fabric.run("echo 'Pin: release a=squeeze-backports' >> /etc/apt/preferences", pty=True)
-        fabric.run("echo 'Pin-Priority: 1001' >> /etc/apt/preferences", pty=True)
-        fabric.run("apt-get update", pty=True)
+# Fabric command to set some Apache requirements
+def fab_prepare_apache():
+        print "===> Preparing Apache"
+        fabric.run("a2enmod rewrite", pty=True)
+        fabric.run("ln -s /var/aegir/config/apache.conf /etc/apache2/conf.d/aegir.conf", pty=True)
 
-# Fabric command to install Aegir using apt_get
-def fab_install_aegir(domain, email, mysqlpass):
-        print "===> Installing Aegir"
-        # Preseed the options for the aegir package.
-        fabric.run("apt-get install debconf-utils -y", pty=True)
-        fabric.run("echo 'aegir-hostmaster aegir/db_password password %s' | debconf-set-selections" % (mysqlpass), pty=True)
-        fabric.run("echo 'aegir-hostmaster aegir/db_password seen true' | debconf-set-selections", pty=True)
-        fabric.run("echo 'aegir-hostmaster aegir/db_host string localhost' | debconf-set-selections", pty=True)
-        fabric.run("echo 'aegir-hostmaster aegir/email string %s' | debconf-set-selections" % (email), pty=True)
-        fabric.run("echo 'aegir-hostmaster aegir/site string %s' | debconf-set-selections" % (domain), pty=True)
-        fabric.run("echo 'aegir-hostmaster aegir/makefile string http://drupalcode.org/project/provision.git/blob_plain/6.x-1.x:/aegir.make' | debconf-set-selections", pty=True)
-        # Install aegir, but ensure that no questions are prompted.
-        fabric.run("DPKG_DEBUG=developer DEBIAN_FRONTEND=noninteractive apt-get install aegir -y", pty=True)
-
-
-# Fabric command to add the aegir user to sudoers
-# We need to do this manually, because the package doesn't support our old version of debian.
+# Fabric command to add the aegir user and to sudoers also
 def fab_prepare_user():
         print "===> Preparing the Aegir user"
+        fabric.run("useradd -r -U -d /var/aegir -m -G www-data aegir", pty=True)
         fabric.run("echo 'aegir ALL=NOPASSWD: /usr/sbin/apache2ctl' >> /etc/sudoers", pty=True)
 
-# Fabric command to set up the hosting queue
-def fab_hostmaster_setup():
-        print "===> Setup hosting queue frequency"
-        fabric.run("su - -s /bin/sh aegir -c 'drush -y @hostmaster vset hosting_queue_tasks_frequency 1'", pty=True)
+# Fabric command to fetch Drush
+def fab_fetch_drush():
+        print "===> Fetching Drush"
+        fabric.run("su - -s /bin/sh aegir -c'wget http://ftp.drupal.org/files/projects/drush-7.x-4.5.tar.gz'", pty=True)
+        fabric.run("su - -s /bin/sh aegir -c' gunzip -c drush-7.x-4.5.tar.gz | tar -xf - '", pty=True)
+        fabric.run("su - -s /bin/sh aegir -c 'rm /var/aegir/drush-7.x-4.5.tar.gz'", pty=True)
+
+# Fabric command to fetch Provision
+def fab_fetch_provision():
+        print "===> Fetching Provision"
+        fabric.run("su - -s /bin/sh aegir -c 'php /var/aegir/drush/drush.php dl -y --destination=/var/aegir/.drush provision-6.x-1.3'", pty=True)
+        #fabric.run("su - -s /bin/sh aegir -c 'mkdir ~/.drush'", pty=True)
+        #fabric.run("su - -s /bin/sh aegir -c 'git clone http://git.drupal.org/project/provision.git ~/.drush/provision'", pty=True)
+        #fabric.run("su - -s /bin/sh aegir -c 'cd ~/.drush/provision && git checkout 6.x-1.3'", pty=True)
+
+# Fabric command to run the install.sh aegir script
+def fab_hostmaster_install(domain, email, mysqlpass):
+        print "===> Running hostmaster-install"
+        fabric.run("su - -s /bin/sh aegir -c 'php /var/aegir/drush/drush.php hostmaster-install %s --client_email=%s --aegir_db_pass=%s --yes'" % (domain, email, mysqlpass), pty=True)
+        fabric.run("su - -s /bin/sh aegir -c 'php /var/aegir/drush/drush.php -y @hostmaster vset hosting_queue_tasks_frequency 1'", pty=True)
         fab_run_dispatch()
 
 # Download, import and verify platforms
 def fab_install_platform(platform_name):
-        fabric.run("su - -s /bin/sh aegir -c 'drush make https://github.com/mig5/builds/raw/master/%s.build /var/aegir/platforms/%s'" % (platform_name, platform_name), pty=True)
-        fabric.run("su - -s /bin/sh aegir -c 'drush --root=\'/var/aegir/platforms/%s\' provision-save \'@platform_%s\' --context_type=\'platform\''" % (platform_name, platform_name), pty=True)
-        fabric.run("su - -s /bin/sh aegir -c 'drush @hostmaster hosting-import \'@platform_%s\''" % platform_name, pty=True)
+        fabric.run("su - -s /bin/sh aegir -c 'php /var/aegir/drush/drush.php make https://github.com/mig5/builds/raw/master/%s.build /var/aegir/platforms/%s'" % (platform_name, platform_name), pty=True)
+        fabric.run("su - -s /bin/sh aegir -c 'php /var/aegir/drush/drush.php --root=\'/var/aegir/platforms/%s\' provision-save \'@platform_%s\' --context_type=\'platform\''" % (platform_name, platform_name), pty=True)
+        fabric.run("su - -s /bin/sh aegir -c 'php /var/aegir/drush/drush.php @hostmaster hosting-import \'@platform_%s\''" % platform_name, pty=True)
         fab_run_dispatch()
 
 # Install a site
 def fab_install_site(platform_name, profile):
-        fabric.run("su - -s /bin/sh aegir -c 'drush --uri=\'%s.mig5.net\' provision-save \'@%s.mig5.net\' --context_type=\'site\' --platform=\'@platform_%s\' --profile=\'%s\' --db_server=\'@server_localhost\''" % (platform_name, platform_name, platform_name, profile), pty=True)
-        fabric.run("su - -s /bin/sh aegir -c 'drush @%s.mig5.net provision-install'" % platform_name, pty=True)
-        fabric.run("su - -s /bin/sh aegir -c 'drush @hostmaster hosting-task @platform_%s verify'" % platform_name, pty=True)
+        fabric.run("su - -s /bin/sh aegir -c '/var/aegir/drush/drush.php --uri=\'%s.mig5.net\' provision-save \'@%s.mig5.net\' --context_type=\'site\' --platform=\'@platform_%s\' --profile=\'%s\' --db_server=\'@server_localhost\''" % (platform_name, platform_name, platform_name, profile), pty=True)
+        fabric.run("su - -s /bin/sh aegir -c '/var/aegir/drush/drush.php @%s.mig5.net provision-install'" % platform_name, pty=True)
+        fabric.run("su - -s /bin/sh aegir -c '/var/aegir/drush/drush.php @hostmaster hosting-task @platform_%s verify'" % platform_name, pty=True)
         fab_run_dispatch()
 
 # Force the dispatcher
 def fab_run_dispatch():
-        fabric.run("su - -s /bin/sh aegir -c 'drush @hostmaster hosting-dispatch'", pty=True)
+        fabric.run("su - -s /bin/sh aegir -c 'php /var/aegir/drush/drush.php @hostmaster hosting-dispatch'", pty=True)
 
 def run_platform_tests():
         print "===> Installing some common platforms"
@@ -123,11 +111,6 @@ def run_site_tests():
         fab_install_site('drupal6', 'default')
         fab_install_site('drupal7', 'standard')
         fab_install_site('openatrium', 'openatrium')
-
-# Remove and purge the aegir debian install
-def fab_uninstall_aegir():
-        fabric.run("apt-get remove --purge aegir aegir-hostmaster aegir-provision drush -y", pty=True)
-
 
 def main():
         # Run some tests
@@ -175,16 +158,16 @@ def main():
 
         try:
                 fab_prepare_firewall()
+                fab_prepare_apache()
                 fab_prepare_user()
-                fab_add_apt_sources()
-                fab_install_aegir(domain, email, mysqlpass)
-                fab_hostmaster_setup()
+                fab_fetch_drush()
+                fab_fetch_provision()
+                fab_hostmaster_install(domain, email, mysqlpass)
                 run_platform_tests()
                 run_site_tests()
-		fab_uninstall_aegir()
         except:
-                #e = sys.exc.info()[1]
-                raise SystemError()
+                e = sys.exc.info()[1]
+                raise SystemError(e)
 
         print "===> Destroying this node"
         conn.destroy_node(node)
