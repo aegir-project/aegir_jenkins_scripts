@@ -134,7 +134,7 @@ def main(argv=None):
                 argv = sys.argv
         try:
                 try:
-                        opts, args = getopt.getopt(argv[1:], "h", ["help", "aegir_version=", "release_type=", "--drush_version="])
+                        opts, args = getopt.getopt(argv[1:], "h", ["help", "aegir_version=", "release_type=", "drush_version="])
                 except getopt.error, msg:
                         raise Usage(msg)
                 # process options
