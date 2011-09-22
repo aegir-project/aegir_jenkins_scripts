@@ -216,7 +216,7 @@ def main(argv=None):
                         run_platform_tests()
                         run_site_tests()
                 except:
-                        e = sys.exc.info()[1]
+                        e = sys.exc_info()[1]
                         raise SystemError(e)
         
                 print "===> Destroying this node"
