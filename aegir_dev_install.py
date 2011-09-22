@@ -205,13 +205,11 @@ def main(argv=None):
                         run_platform_tests()
                         run_site_tests()
                 except:
-                        e = sys.exc_info()[1]
+                        print "===> Test failure"
+                        raise
+                finally: 
                         print "===> Destroying this node"
                         conn.destroy_node(node)
-                        raise SystemError(e)
-        
-                print "===> Destroying this node"
-                conn.destroy_node(node)
                 
                 return 0
         
