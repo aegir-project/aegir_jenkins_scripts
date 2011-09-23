@@ -93,35 +93,9 @@ def fab_hostmaster_install(domain, email, mysqlpass):
         fabric.run("su - -s /bin/sh aegir -c 'php /var/aegir/drush/drush.php -y @hostmaster vset hosting_queue_tasks_frequency 1'", pty=True)
         fab_run_dispatch()
 
-# Download, import and verify platforms
-def fab_install_platform(platform_name):
-        fabric.run("su - -s /bin/sh aegir -c 'php /var/aegir/drush/drush.php make https://github.com/mig5/builds/raw/master/%s.build /var/aegir/platforms/%s'" % (platform_name, platform_name), pty=True)
-        fabric.run("su - -s /bin/sh aegir -c 'php /var/aegir/drush/drush.php --root=\'/var/aegir/platforms/%s\' provision-save \'@platform_%s\' --context_type=\'platform\''" % (platform_name, platform_name), pty=True)
-        fabric.run("su - -s /bin/sh aegir -c 'php /var/aegir/drush/drush.php @hostmaster hosting-import \'@platform_%s\''" % platform_name, pty=True)
-        fab_run_dispatch()
-
-# Install a site
-def fab_install_site(platform_name, profile):
-        fabric.run("su - -s /bin/sh aegir -c '/var/aegir/drush/drush.php --uri=\'%s.mig5.net\' provision-save \'@%s.mig5.net\' --context_type=\'site\' --platform=\'@platform_%s\' --profile=\'%s\' --db_server=\'@server_localhost\''" % (platform_name, platform_name, platform_name, profile), pty=True)
-        fabric.run("su - -s /bin/sh aegir -c '/var/aegir/drush/drush.php @%s.mig5.net provision-install'" % platform_name, pty=True)
-        fabric.run("su - -s /bin/sh aegir -c '/var/aegir/drush/drush.php @hostmaster hosting-task --force @platform_%s verify'" % platform_name, pty=True)
-        fab_run_dispatch()
-
 # Force the dispatcher
 def fab_run_dispatch():
         fabric.run("su - -s /bin/sh aegir -c 'php /var/aegir/drush/drush.php @hostmaster hosting-dispatch'", pty=True)
-
-def run_platform_tests():
-        print "===> Installing some common platforms"
-        fab_install_platform('drupal6')
-        fab_install_platform('drupal7')
-        fab_install_platform('openatrium')
-
-def run_site_tests():
-        print "===> Installing some sites"
-        fab_install_site('drupal6', 'default')
-        fab_install_site('drupal7', 'standard')
-        fab_install_site('openatrium', 'openatrium')
 
 def run_provision_tests():
         print "===> Running Provision tests"
@@ -206,8 +180,6 @@ def main(argv=None):
                         fab_fetch_drush(drush_version)
                         fab_fetch_provision(aegir_version)
                         fab_hostmaster_install(domain, email, mysqlpass)
-                        # run_platform_tests()
-                        # run_site_tests()
                         run_provision_tests()
                 except:
                         print "===> Test failure"
