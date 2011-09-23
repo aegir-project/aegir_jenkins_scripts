@@ -123,6 +123,10 @@ def run_site_tests():
         fab_install_site('drupal7', 'standard')
         fab_install_site('openatrium', 'openatrium')
 
+def run_provision_tests():
+        print "===> Running Provision tests"
+        fabric.run("su - -s /bin/sh aegir -c '/var/aegir/drush/drush.php @hostmaster provision-tests-run -y'", pty=True)
+
 def main(argv=None):
         if argv is None:
                 argv = sys.argv
@@ -202,8 +206,9 @@ def main(argv=None):
                         fab_fetch_drush(drush_version)
                         fab_fetch_provision(aegir_version)
                         fab_hostmaster_install(domain, email, mysqlpass)
-                        run_platform_tests()
-                        run_site_tests()
+                        # run_platform_tests()
+                        # run_site_tests()
+                        run_provision_tests()
                 except:
                         print "===> Test failure"
                         raise
