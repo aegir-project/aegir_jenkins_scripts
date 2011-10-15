@@ -183,16 +183,16 @@ def main():
                 fab_prepare_user()
                 fab_add_apt_sources()
                 fab_install_aegir(domain, email, mysqlpass)
-                #fab_hostmaster_setup()
-                #run_platform_tests()
-                #run_site_tests()
-                #fab_uninstall_aegir()
+                fab_hostmaster_setup()
+                run_platform_tests()
+                run_site_tests()
+                fab_uninstall_aegir()
         except:
                 print "===> Test failure"
                 raise
         finally:
                 print "===> Destroying this node"
-                #conn.destroy_node(node)
+                conn.destroy_node(node)
 
         return 0
 
