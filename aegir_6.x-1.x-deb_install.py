@@ -112,6 +112,10 @@ def fab_install_site(platform_name, profile):
 def fab_run_dispatch():
         fabric.run("su - -s /bin/sh aegir -c 'drush @hostmaster hosting-dispatch'", pty=True)
 
+def run_provision_tests():
+        print "===> Running Provision tests"
+        fabric.run("su - -s /bin/sh aegir -c 'drush @hostmaster provision-tests-run -y'", pty=True)
+
 def run_platform_tests():
         print "===> Installing some common platforms"
         fab_install_platform('drupal6')
@@ -178,9 +182,7 @@ def main():
                 fab_prepare_user()
                 fab_add_apt_sources()
                 fab_install_aegir(domain, email, mysqlpass)
-                fab_hostmaster_setup()
-                run_platform_tests()
-                run_site_tests()
+                run_provision_tests()
                 fab_uninstall_aegir()
         except:
                 print "===> Test failure"
