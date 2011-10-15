@@ -35,13 +35,13 @@ email = config.get('Aegir', 'email')
 
 # Some basic dependency tests for this job itself
 def dependency_check():
-        try:   
+        try:
                 open(os.path.expanduser("~/.ssh/id_rsa.pub")).read()
         except IOError:
                 print "You need at least a public key called id_rsa.pub in your .ssh directory"
                 sys.exit(1)
-        try:   
-                import fabric                                   
+        try:
+                import fabric
 
         except ImportError:
                 print "You need Fabric installed (apt-get install fabric)"
@@ -159,7 +159,7 @@ def main():
         # Create and deploy a new server now, and run the deployment steps defined above
         print "Provisioning server and running deployment processes"
         try:
-                node = conn.deploy_node(name='aegir' + os.environ['BUILD_ID'], image=preferred_image[0], size=preferred_size[0], deploy=msd)                                             
+                node = conn.deploy_node(name='aegir' + os.environ['BUILD_ID'], image=preferred_image[0], size=preferred_size[0], deploy=msd)
         except:
                 e = sys.exc_info()[1]
                 raise SystemError(e)
@@ -181,13 +181,15 @@ def main():
                 fab_hostmaster_setup()
                 run_platform_tests()
                 run_site_tests()
-		fab_uninstall_aegir()
+                fab_uninstall_aegir()
         except:
-                #e = sys.exc.info()[1]
-                raise SystemError()
+                print "===> Test failure"
+                raise
+        finally:
+                print "===> Destroying this node"
+                conn.destroy_node(node)
 
-        print "===> Destroying this node"
-        conn.destroy_node(node)
+        return 0
 
 if __name__ == "__main__":
         main()
