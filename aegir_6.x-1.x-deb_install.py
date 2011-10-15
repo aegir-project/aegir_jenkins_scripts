@@ -83,7 +83,7 @@ def fab_install_aegir(domain, email, mysqlpass):
         # Install just provision
         fabric.run("DPKG_DEBUG=developer DEBIAN_FRONTEND=noninteractive apt-get install aegir-provision -y", pty=True)
         # Install aegir, but ensure that no questions are prompted.
-        with cd('/var/aegir'):
+        with fabric.cd('/var/aegir'):
                 fabric.run("DPKG_DEBUG=developer DEBIAN_FRONTEND=noninteractive apt-get install aegir -y", pty=True)
 
 
