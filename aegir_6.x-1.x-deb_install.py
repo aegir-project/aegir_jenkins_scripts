@@ -79,7 +79,12 @@ def fab_install_aegir(domain, email, mysqlpass):
         fabric.run("echo 'aegir-hostmaster aegir/site string %s' | debconf-set-selections" % (domain), pty=True)
         fabric.run("echo 'aegir-hostmaster aegir/makefile string http://drupalcode.org/project/provision.git/blob_plain/6.x-1.x:/aegir.make' | debconf-set-selections", pty=True)
         # Install aegir, but ensure that no questions are prompted.
-        fabric.run("DPKG_DEBUG=developer DEBIAN_FRONTEND=noninteractive apt-get install aegir -y", pty=True)
+        # fabric.run("DPKG_DEBUG=developer DEBIAN_FRONTEND=noninteractive apt-get install aegir -y", pty=True)
+        # Install just provision
+        fabric.run("DPKG_DEBUG=developer DEBIAN_FRONTEND=noninteractive apt-get install aegir-provision -y", pty=True)
+        # Install aegir, but ensure that no questions are prompted.
+        with cd('/var/aegir'):
+                fabric.run("DPKG_DEBUG=developer DEBIAN_FRONTEND=noninteractive apt-get install aegir -y", pty=True)
 
 
 # Fabric command to add the aegir user to sudoers
