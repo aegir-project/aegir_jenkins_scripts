@@ -78,3 +78,25 @@ def run_site_tests():
         fab_install_site('drupal6', 'default')
         fab_install_site('drupal7', 'standard')
         fab_install_site('openatrium', 'openatrium')
+
+def run_provision_tests():
+        print "===> Running Provision tests"
+        fabric.run("su - -s /bin/sh aegir -c '/var/aegir/drush/drush.php @hostmaster provision-tests-run -y'", pty=True)
+
+        # Fabric command to fetch Provision
+def fab_fetch_provision(release_type, aegir_version):
+        if release_type == "git":
+                print "===> Fetching Provision - via git"
+                fabric.run("su - -s /bin/sh aegir -c 'mkdir ~/.drush'", pty=True)
+                fabric.run("su - -s /bin/sh aegir -c 'git clone http://git.drupal.org/project/provision.git ~/.drush/provision'", pty=True)
+                fabric.run("su - -s /bin/sh aegir -c 'cd ~/.drush/provision && git checkout %s'" % (aegir_version), pty=True)
+        else:
+                print "===> Fetching Provision - via package"
+                fabric.run("su - -s /bin/sh aegir -c 'php /var/aegir/drush/drush.php dl -y --destination=/var/aegir/.drush provision-%s'" % (aegir_version), pty=True)
+
+# Fabric command to run the install.sh aegir script
+def fab_hostmaster_install(domain, email, mysqlpass):
+        print "===> Running hostmaster-install"
+        fabric.run("su - -s /bin/sh aegir -c 'php /var/aegir/drush/drush.php hostmaster-install %s --client_email=%s --aegir_db_pass=%s --yes'" % (domain, email, mysqlpass), pty=True)
+        fabric.run("su - -s /bin/sh aegir -c 'php /var/aegir/drush/drush.php -y @hostmaster vset hosting_queue_tasks_frequency 1'", pty=True)
+        fab_run_dispatch()

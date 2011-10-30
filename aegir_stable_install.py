@@ -13,7 +13,7 @@ from libcloud.types import Provider
 from libcloud.providers import get_driver
 from libcloud.deployment import MultiStepDeployment, ScriptDeployment, SSHKeyDeployment
 from libcloud.ssh import SSHClient, ParamikoSSHClient
-from aegir_common import Usage, dependency_check, fab_prepare_firewall, fab_prepare_apache, fab_prepare_user, fab_fetch_drush, fab_install_platform, fab_install_site, fab_run_dispatch, run_platform_tests, run_site_tests
+from aegir_common import Usage, dependency_check, fab_prepare_firewall, fab_prepare_apache, fab_prepare_user, fab_fetch_drush, fab_install_platform, fab_install_site, fab_run_dispatch, run_platform_tests, run_site_tests, fab_fetch_provision, fab_hostmaster_install
 import os, sys, string, ConfigParser, socket, getopt
 import fabric.api as fabric
 import time
@@ -38,25 +38,6 @@ config_size = config.get(provider, 'size')
 
 # These are used as options to Aegir during install
 email = config.get('Aegir', 'email')
-
-# Fabric command to fetch Provision
-def fab_fetch_provision(release_type, aegir_version):
-        if release_type == "git":
-                print "===> Fetching Provision - via git"
-                fabric.run("su - -s /bin/sh aegir -c 'mkdir ~/.drush'", pty=True)
-                fabric.run("su - -s /bin/sh aegir -c 'git clone http://git.drupal.org/project/provision.git ~/.drush/provision'", pty=True)
-                fabric.run("su - -s /bin/sh aegir -c 'cd ~/.drush/provision && git checkout %s'" % (aegir_version), pty=True)
-        else:
-                print "===> Fetching Provision - via package"
-                fabric.run("su - -s /bin/sh aegir -c 'php /var/aegir/drush/drush.php dl -y --destination=/var/aegir/.drush provision-%s'" % (aegir_version), pty=True)
-        
-
-# Fabric command to run the install.sh aegir script
-def fab_hostmaster_install(domain, email, mysqlpass):
-        print "===> Running hostmaster-install"
-        fabric.run("su - -s /bin/sh aegir -c 'php /var/aegir/drush/drush.php hostmaster-install %s --client_email=%s --aegir_db_pass=%s --yes'" % (domain, email, mysqlpass), pty=True)
-        fabric.run("su - -s /bin/sh aegir -c 'php /var/aegir/drush/drush.php -y @hostmaster vset hosting_queue_tasks_frequency 1'", pty=True)
-        fab_run_dispatch()
 
 def main(argv=None):
         if argv is None:
