@@ -144,7 +144,7 @@ def main(argv=None):
                 for o, a in opts:
                         if o in ("-h", "--help"):
                                 print __doc__
-                                return 0;
+                                return 0
                         if o in ("--aegir_version"):
                                 aegir_version = a
                         if o in ("--release_type"):
