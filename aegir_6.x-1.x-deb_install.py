@@ -4,6 +4,7 @@ from libcloud.types import Provider
 from libcloud.providers import get_driver
 from libcloud.deployment import MultiStepDeployment, ScriptDeployment, SSHKeyDeployment
 from libcloud.ssh import SSHClient, ParamikoSSHClient
+from aegir_common import Usage, dependency_check, fab_prepare_firewall
 import libcloud.security
 import os, sys, string, ConfigParser, socket
 import fabric.api as fabric
@@ -32,25 +33,6 @@ config_size = config.get(provider, 'size')
 
 # These are used as options to Aegir during install
 email = config.get('Aegir', 'email')
-
-# Some basic dependency tests for this job itself
-def dependency_check():
-        try:
-                open(os.path.expanduser("~/.ssh/id_rsa.pub")).read()
-        except IOError:
-                print "You need at least a public key called id_rsa.pub in your .ssh directory"
-                sys.exit(1)
-        try:
-                import fabric
-
-        except ImportError:
-                print "You need Fabric installed (apt-get install fabric)"
-                sys.exit(1)
-
-# Prepare a basic firewall
-def fab_prepare_firewall():
-        print "===> Setting a little firewall"
-        fabric.run("for source in 95.142.164.178 59.167.182.161 174.136.104.138 217.155.126.38; do iptables -I INPUT -s $source -p tcp --dport 22 -j ACCEPT; iptables -I INPUT -s $source -p tcp --dport 80 -j ACCEPT; done; iptables -A INPUT -m state --state ESTABLISHED,RELATED -j ACCEPT; iptables --policy INPUT DROP", pty=True)
 
 # Fabric command to add the apt sources
 def fab_add_apt_sources():
