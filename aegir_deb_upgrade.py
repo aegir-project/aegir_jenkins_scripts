@@ -35,12 +35,12 @@ config_size = config.get(provider, 'size')
 email = config.get('Aegir', 'email')
 
 # Fabric command to add the apt sources
-def fab_add_apt_sources(channel):
+def fab_add_apt_sources(release):
         print "===> Adding apt sources"
         # Add the apt-key for Koumbit.
         fabric.run("curl http://debian.aegirproject.org/key.asc | apt-key add -", pty=True)
         # Add the unstable Aegir repositories, these should contain the dev version of Aegir.
-        fab_add_aegir_repo(channel)
+        fab_add_aegir_repo(release)
         # Add the squeeze-backports repo for Drush.
         fabric.run("echo 'deb http://backports.debian.org/debian-backports squeeze-backports main' >> /etc/apt/sources.list", pty=True)
         # Pin to using the version of Drush from squeeze-backports, so we use a 'stable' version.
@@ -49,16 +49,16 @@ def fab_add_apt_sources(channel):
         fabric.run("echo 'Pin-Priority: 1001' >> /etc/apt/preferences", pty=True)
         fabric.run("apt-get update", pty=True)
 
-def fab_add_aegir_repo(channel):
-        fabric.run("echo 'deb http://debian.aegirproject.org %s main' >> /etc/apt/sources.list.d/aegir-%s.list" % (channel, channel), pty=True)
+def fab_add_aegir_repo(release):
+        fabric.run("echo 'deb http://debian.aegirproject.org %s main' >> /etc/apt/sources.list.d/aegir-%s.list" % (release, release), pty=True)
 
-def fab_remove_aegir_repo(channel):
-        fabric.run("rm /etc/apt/sources.list.d/aegir-%s.list" % (channel), pty=True)
+def fab_remove_aegir_repo(release):
+        fabric.run("rm /etc/apt/sources.list.d/aegir-%s.list" % (release), pty=True)
 
-def fab_deb_upgrade_aegir(channel_from, channel_to):
+def fab_deb_upgrade_aegir(release_from, release_to):
         print "===> Upgrading Aegir"
-        fab_remove_aegir_repo(channel_from)
-        fab_add_aegir_repo(channel_to)
+        fab_remove_aegir_repo(release_from)
+        fab_add_aegir_repo(release_to)
         fabric.run("apt-get update", pty=True)
         fabric.run("DPKG_DEBUG=developer DEBIAN_FRONTEND=noninteractive apt-get upgrade aegir -y", pty=True)
 
