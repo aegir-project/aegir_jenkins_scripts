@@ -72,7 +72,6 @@ def fab_install_aegir(domain, email, mysqlpass):
         fabric.run("echo 'aegir-hostmaster aegir/db_host string localhost' | debconf-set-selections", pty=True)
         fabric.run("echo 'aegir-hostmaster aegir/email string %s' | debconf-set-selections" % (email), pty=True)
         fabric.run("echo 'aegir-hostmaster aegir/site string %s' | debconf-set-selections" % (domain), pty=True)
-        fabric.run("echo 'aegir-hostmaster aegir/makefile string http://drupalcode.org/project/provision.git/blob_plain/6.x-1.x:/aegir.make' | debconf-set-selections", pty=True)
         # Install aegir, but ensure that no questions are prompted.
         fabric.run("DPKG_DEBUG=developer DEBIAN_FRONTEND=noninteractive apt-get install aegir -y", pty=True)
 
