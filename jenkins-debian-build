@@ -19,7 +19,7 @@ EOF
 
 upload=false
 
-set -- `getopt nvhk: $*`
+set -- `getopt nvhku: $*`
 for i; do
     case "$i" in
         -h) shift; usage;;
