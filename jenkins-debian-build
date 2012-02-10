@@ -1,0 +1,70 @@
+#!/bin/sh -e
+
+DOMAIN=`hostname -f`
+KEY="jenkins@$DOMAIN"
+
+usage() {
+    cat <<EOF
+Usage: $0 [ -hvn -k <key> ]
+
+Build an automatic package with the provided key.
+
+-h: this help
+-v: show every command ran
+-n: simulate: build but do not upload the package
+-k <key>: sign the package with this key (default: $KEY)
+-u: upload the package (default: don't upload)
+EOF
+}
+
+upload=false
+
+set -- `getopt nvhk: $*`
+for i; do
+    case "$i" in
+        -h) shift; usage;;
+        -v) shift; set -x;;
+        -n) shift; simulate='echo > ';;
+        -k) shift; KEY=$1; shift;;
+        -u) shift; upload=true; shift;;
+        --) shift; break;;
+    esac
+done
+
+
+# the upstream version: strip the 6.x and turn the appendix into
+# +N.foo where N is the number of commits since last tag and foo is
+# the hash
+upstream_version=$(git describe --tags origin/6.x-1.x | sed 's/6.x-//;s/-\([0-9]*\)-\([^-]*\)$/+\1.\2/')
+# the debian version, strip the debian/ part of the tag and the
+# upstream version number, keep just the debian part, replacing as
+# above for the N.foo part
+debian_version=$(git describe --tags origin/debian | sed "s/debian\///;s/-\([0-9]*\)-\([^-]*\)$/+\1.\2/;s/^.*-//" )
+
+echo building aegir-${upstream_version}-${debian_version} with key $KEY - build tag: ${BUILD_TAG}
+
+$simulate git branch -D debian || true
+$simulate git checkout -b debian origin/debian
+
+trap "rm -rf build-area" 0
+
+$simulate dch -D unstable -v ${upstream_version}-${debian_version} "automatic jenkins build ${BUILD_TAG}"
+
+$simulate git commit -m"dummy commit for jenkins ${BUILD_TAG} autobuild" debian/changelog
+
+$simulate git-buildpackage -b --git-upstream-tag=`git describe --tags origin/6.x-1.x` -k${KEY}
+
+if $upload; then
+    echo uploading package to aegir repository
+    $simulate dput -f aegir build-area/*.changes
+    $simulate sleep 5
+    debfile=`ls build-area | grep deb | head -1`
+    if [ -f "/srv/reprepro/pool/main/a/aegir-provision/$debfile" ]; then
+        echo "debian file built: $debfile"
+    else
+        echo "can't find debian file $debfile"
+        exit 1
+    fi
+fi
+$simulate rm -r build-area
+$simulate git checkout ${GIT_COMMIT}
