@@ -18,15 +18,17 @@ EOF
 }
 
 upload=false
+official=false
 
-set -- `getopt hvnk:u $*`
+set -- `getopt hvnk:uo $*`
 for i; do
     case "$i" in
         -h) shift; usage;;
         -v) shift; set -x;;
         -n) shift; simulate='echo > ';;
         -k) shift; KEY=$1; shift;;
-        -u) shift; upload=true; ;;
+        -u) shift; upload=true;;
+        -o) shift; official=true;;
         --) shift; break;;
     esac
 done
@@ -48,11 +50,13 @@ $simulate git checkout -b debian origin/debian
 
 trap "rm -rf build-area" 0
 
-$simulate dch -D unstable -v ${upstream_version}-${debian_version} "automatic jenkins build ${BUILD_TAG}"
-
-$simulate git commit -m"dummy commit for jenkins ${BUILD_TAG} autobuild" debian/changelog
-
-$simulate git-buildpackage -b --git-upstream-tag=`git describe --tags origin/6.x-1.x` -k${KEY}
+if $official; then
+    $simulate git-buildpackage -b -k${KEY}
+else
+    $simulate dch -D unstable -v ${upstream_version}-${debian_version} "automatic jenkins build ${BUILD_TAG}"
+    $simulate git commit -m"dummy commit for jenkins ${BUILD_TAG} autobuild" debian/changelog
+    $simulate git-buildpackage -b --git-upstream-tag=`git describe --tags origin/6.x-1.x` -k${KEY}
+fi
 
 if $upload; then
     echo uploading package to aegir repository
