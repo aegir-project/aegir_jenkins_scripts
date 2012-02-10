@@ -26,7 +26,7 @@ for i; do
         -v) shift; set -x;;
         -n) shift; simulate='echo > ';;
         -k) shift; KEY=$1; shift;;
-        -u) shift; upload=true; shift;;
+        -u) shift; upload=true; ;;
         --) shift; break;;
     esac
 done
