@@ -1,7 +1,7 @@
 #!/bin/sh -e
 
-# The purpose of this script is to lay down tags in the git repository
-# to publish a new release
+# The purpose of this script is to fix the debian changelog in the git
+# repository to publish a new release
 #
 # This is used in the jenkins job named "R debian provision changelog"
 
