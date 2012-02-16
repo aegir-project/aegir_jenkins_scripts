@@ -1,0 +1,20 @@
+#!/bin/sh -e
+
+# The purpose of this script is to lay down tags in the git repository
+# to publish a new release
+#
+# This is used in the jenkins job named "R debian provision changelog"
+
+# Provision
+rm -rf provision
+git clone --branch debian darthsteven@git.drupal.org:project/provision.git
+cd provision
+
+# Merge in the new version
+git merge $NEW_TAG
+
+dch -v $NEW_DEBIAN_VERSION -D testing "new upstream release"
+git commit -a -m "Updating Debian changelog for release $NEW_DEBIAN_VERSION"
+
+# Now we'd do a push
+git push origin debian
