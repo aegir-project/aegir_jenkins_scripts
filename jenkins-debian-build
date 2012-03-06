@@ -1,5 +1,11 @@
 #!/bin/sh -e
 
+# This script is designed to automatically build Debian packages for Jenkins
+#
+# It is used in the two following jobs:
+# D_aegir-debian-official
+# D_aegir-debian-auto
+
 DOMAIN=`hostname -f`
 KEY="jenkins@$DOMAIN"
 
