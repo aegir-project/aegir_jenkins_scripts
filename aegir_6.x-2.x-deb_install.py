@@ -82,6 +82,10 @@ def fab_uninstall_aegir():
 
 
 def main():
+        assert len(sys.argv) > 0, "No .deb provided on the commandline"
+        for deb in sys.argv:
+                assert(os.path.exists(deb)), "provided file doesn't exist: " + deb
+
         # Run some tests
         dependency_check()
 
