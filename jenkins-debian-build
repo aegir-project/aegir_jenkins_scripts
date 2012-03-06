@@ -44,24 +44,17 @@ done
 # +N.foo where N is the number of commits since last tag and foo is
 # the hash
 upstream_version=$(git describe --tags origin/6.x-1.x | sed 's/6.x-//;s/-\([0-9]*\)-\([^-]*\)$/+\1.\2/')
-# the debian version, strip the debian/ part of the tag and the
-# upstream version number, keep just the debian part, replacing as
-# above for the N.foo part
-debian_version=$(git describe --tags origin/debian | sed "s/debian\///;s/-\([0-9]*\)-\([^-]*\)$/+\1.\2/;s/^.*-//" )
 
-echo building aegir-${upstream_version}-${debian_version} with key $KEY - build tag: ${BUILD_TAG}
-
-$simulate git branch -D debian || true
-$simulate git checkout -b debian origin/debian
+echo building aegir-${upstream_version} with key $KEY - build tag: ${BUILD_TAG}
 
 trap "rm -rf build-area" 0
 
 if $official; then
-    $simulate git-buildpackage -b -k${KEY}
+    $simulate git-buildpackage -k${KEY}
 else
-    $simulate dch -D unstable -v ${upstream_version}-${debian_version} "automatic jenkins build ${BUILD_TAG}"
+    $simulate dch -D unstable -v ${upstream_version} "automatic jenkins build ${BUILD_TAG}"
     $simulate git commit -m"dummy commit for jenkins ${BUILD_TAG} autobuild" debian/changelog
-    $simulate git-buildpackage -b --git-upstream-tag=`git describe --tags origin/6.x-1.x` -k${KEY}
+    $simulate git-buildpackage -k${KEY}
 fi
 
 if $upload; then
