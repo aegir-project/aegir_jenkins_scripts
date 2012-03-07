@@ -131,7 +131,6 @@ def main():
         try:
                 fab_prepare_firewall()
                 fab_prepare_user()
-                fab_add_apt_sources()
                 fab_preseed_config(domain, email, mysqlpass)
                 fab_install_debs(sys.argv)
                 run_provision_tests()
