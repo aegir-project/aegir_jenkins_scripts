@@ -133,7 +133,7 @@ def main():
                 fab_prepare_firewall()
                 fab_prepare_user()
                 fab_preseed_config(domain, email, mysqlpass)
-                fab_install_debs(sys.argv[:1])
+                fab_install_debs(sys.argv[1:])
                 run_provision_tests()
                 fab_uninstall_aegir()
         except:
