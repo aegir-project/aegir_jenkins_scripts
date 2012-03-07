@@ -50,8 +50,8 @@ def fab_preseed_config(domain, email, mysqlpass):
 def fab_install_debs(debs):
         for deb in debs:
                 print "===> Uploading deb " + deb
-                put(deb, '')
-        fabric.run("DPKG_DEBUG=developer DEBIAN_FRONTEND=noninteractive dpkg -i aegir*.deb", pty=True)
+                put(deb, '~')
+        fabric.run("DPKG_DEBUG=developer DEBIAN_FRONTEND=noninteractive dpkg -i ~/aegir*.deb", pty=True)
         # Install aegir, but ensure that no questions are prompted.
         #fabric.run("DPKG_DEBUG=developer DEBIAN_FRONTEND=noninteractive apt-get install aegir -y", pty=True)
 
