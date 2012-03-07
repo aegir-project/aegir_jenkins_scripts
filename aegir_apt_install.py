@@ -34,13 +34,15 @@ config_size = config.get(provider, 'size')
 # These are used as options to Aegir during install
 email = config.get('Aegir', 'email')
 
+distro = os.environ['DIST'] || 'unstable'
+
 # Fabric command to add the apt sources
 def fab_add_apt_sources():
         print "===> Adding apt sources"
         # Add the apt-key for Koumbit.
         fabric.run("curl http://debian.aegirproject.org/key.asc | apt-key add -", pty=True)
         # Add the unstable Aegir repositories, these should contain the dev version of Aegir.
-        fabric.run("echo 'deb http://debian.aegirproject.org unstable main' >> /etc/apt/sources.list", pty=True)
+        fabric.run("echo 'deb http://debian.aegirproject.org %s main' >> /etc/apt/sources.list" % distro, pty=True)
         # Add the squeeze-backports repo for Drush.
         fabric.run("echo 'deb http://backports.debian.org/debian-backports squeeze-backports main' >> /etc/apt/sources.list", pty=True)
         # Pin to using the version of Drush from squeeze-backports, so we use a 'stable' version.
