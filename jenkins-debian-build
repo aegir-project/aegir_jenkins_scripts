@@ -20,13 +20,14 @@ Build an automatic package with the provided key.
 -n: simulate: build but do not upload the package
 -k <key>: sign the package with this key (default: $KEY)
 -u: upload the package (default: don't upload)
+-t <ref>: build the package from a ref, usually a tag
 EOF
 }
 
 upload=false
 official=false
 
-set -- `getopt hvnk:uo $*`
+set -- `getopt hvnk:ut: $*`
 for i; do
     case "$i" in
         -h) shift; usage;;
@@ -34,7 +35,7 @@ for i; do
         -n) shift; simulate='echo > ';;
         -k) shift; KEY=$1; shift;;
         -u) shift; upload=true;;
-        -o) shift; official=true;;
+        -t) shift; tag=$1; shift;;
         --) shift; break;;
     esac
 done
@@ -43,13 +44,20 @@ done
 # the upstream version: strip the 6.x and turn the appendix into
 # +N.foo where N is the number of commits since last tag and foo is
 # the hash
-upstream_version=$(git describe --tags origin/6.x-1.x | sed 's/6.x-//;s/-\([0-9]*\)-\([^-]*\)$/+\1.\2/')
+if ! [ -z "$tag" ]; then
+    upstream_version="$tag"
+    # we checkout the tag, using git reset
+    # this is necessary so that git-buildpackage doesn't complain about not being on a branch
+    git reset --hard $tag
+else
+    upstream_version=$(git describe --tags origin/6.x-1.x | sed 's/6.x-//;s/-\([0-9]*\)-\([^-]*\)$/+\1.\2/')
+fi
 
 echo building aegir-${upstream_version} with key $KEY - build tag: ${BUILD_TAG}
 
 trap "rm -rf build-area" 0
 
-if $official; then
+if ! [ -z "$tag" ] ; then
     $simulate git-buildpackage -k${KEY}
 else
     $simulate dch -D unstable -v ${upstream_version} "automatic jenkins build ${BUILD_TAG}"
