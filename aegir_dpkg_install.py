@@ -8,7 +8,7 @@ from aegir_common import Usage, dependency_check, fab_prepare_firewall
 import libcloud.security
 import os, sys, string, ConfigParser, socket
 import fabric.api as fabric
-import fabric.operations
+from fabric.operations import put
 import time
 
 libcloud.security.VERIFY_SSL_CERT = True
@@ -50,7 +50,7 @@ def fab_preseed_config(domain, email, mysqlpass):
 def fab_install_debs(debs):
         for deb in debs:
                 print "===> Uploading deb " + deb
-                fabric.operations.put(deb, '')
+                put(deb, '')
         fabric.run("DPKG_DEBUG=developer DEBIAN_FRONTEND=noninteractive dpkg -i aegir*.deb", pty=True)
         # Install aegir, but ensure that no questions are prompted.
         #fabric.run("DPKG_DEBUG=developer DEBIAN_FRONTEND=noninteractive apt-get install aegir -y", pty=True)
