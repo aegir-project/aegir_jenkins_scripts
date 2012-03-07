@@ -81,8 +81,8 @@ def fab_uninstall_aegir():
 
 
 def main():
-        assert len(sys.argv) > 0, "No .deb provided on the commandline"
-        for deb in sys.argv:
+        assert len(sys.argv) > 1, "No .deb provided on the commandline"
+        for deb in sys.argv[:1]:
                 assert(os.path.exists(deb)), "provided file doesn't exist: " + deb
 
         # Run some tests
@@ -132,7 +132,7 @@ def main():
                 fab_prepare_firewall()
                 fab_prepare_user()
                 fab_preseed_config(domain, email, mysqlpass)
-                fab_install_debs(sys.argv)
+                fab_install_debs(sys.argv[:1])
                 run_provision_tests()
                 fab_uninstall_aegir()
         except:
