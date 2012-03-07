@@ -51,7 +51,7 @@ def fab_install_debs(debs):
         for deb in debs:
                 print "===> Uploading deb " + deb
                 put(deb, '~')
-        fabric.run("DPKG_DEBUG=developer DEBIAN_FRONTEND=noninteractive dpkg -i ~/aegir*.deb || apt-get install -f", pty=True)
+        fabric.run("DPKG_DEBUG=developer DEBIAN_FRONTEND=noninteractive dpkg -i ~/aegir*.deb || apt-get install", pty=True)
         # Install aegir, but ensure that no questions are prompted.
         #fabric.run("DPKG_DEBUG=developer DEBIAN_FRONTEND=noninteractive apt-get install aegir -y", pty=True)
 
