@@ -55,8 +55,6 @@ fi
 
 echo building aegir-${upstream_version} with key $KEY - build tag: ${BUILD_TAG}
 
-trap "rm -rf build-area" 0
-
 if ! [ -z "$tag" ] ; then
     $simulate git-buildpackage -k${KEY}
 else
@@ -77,5 +75,4 @@ if $upload; then
         exit 1
     fi
 fi
-$simulate rm -r build-area
 $simulate git checkout ${GIT_COMMIT}
