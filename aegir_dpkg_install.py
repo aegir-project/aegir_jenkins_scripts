@@ -8,6 +8,7 @@ from aegir_common import Usage, dependency_check, fab_prepare_firewall
 import libcloud.security
 import os, sys, string, ConfigParser, socket
 import fabric.api as fabric
+import fabric.operations
 import time
 
 libcloud.security.VERIFY_SSL_CERT = True
