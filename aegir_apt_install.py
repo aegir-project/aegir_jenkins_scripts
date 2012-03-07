@@ -34,7 +34,7 @@ config_size = config.get(provider, 'size')
 # These are used as options to Aegir during install
 email = config.get('Aegir', 'email')
 
-distro = os.environ['DIST'] || 'unstable'
+distro = os.environ['DIST'] or 'unstable'
 
 # Fabric command to add the apt sources
 def fab_add_apt_sources():
