@@ -45,7 +45,6 @@ def fab_preseed_config(domain, email, mysqlpass):
         fabric.run("echo 'aegir-hostmaster aegir/db_host string localhost' | debconf-set-selections", pty=True)
         fabric.run("echo 'aegir-hostmaster aegir/email string %s' | debconf-set-selections" % (email), pty=True)
         fabric.run("echo 'aegir-hostmaster aegir/site string %s' | debconf-set-selections" % (domain), pty=True)
-        fabric.run("echo 'aegir-hostmaster aegir/makefile string http://drupalcode.org/project/provision.git/blob_plain/6.x-2.x:/aegir.make' | debconf-set-selections", pty=True)
 
 def fab_install_debs(debs):
         for deb in debs:
