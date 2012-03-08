@@ -47,6 +47,17 @@ def fab_preseed_config(domain, email, mysqlpass):
         fabric.run("echo 'aegir-hostmaster aegir/email string %s' | debconf-set-selections" % (email), pty=True)
         fabric.run("echo 'aegir-hostmaster aegir/site string %s' | debconf-set-selections" % (domain), pty=True)
 
+# Fabric command to add the apt sources
+def fab_add_apt_sources():
+        print "===> Adding apt sources"
+        # Add the squeeze-backports repo for Drush.
+        fabric.run("echo 'deb http://backports.debian.org/debian-backports squeeze-backports main' >> /etc/apt/sources.list", pty=True)
+        # Pin to using the version of Drush from squeeze-backports, so we use a 'stable' version.
+        fabric.run("echo 'Package: drush' >> /etc/apt/preferences", pty=True)
+        fabric.run("echo 'Pin: release a=squeeze-backports' >> /etc/apt/preferences", pty=True)
+        fabric.run("echo 'Pin-Priority: 1001' >> /etc/apt/preferences", pty=True)
+        fabric.run("apt-get update", pty=True)
+
 def fab_install_debs(debs):
         for deb in debs:
                 print "===> Uploading deb " + deb
@@ -132,6 +143,7 @@ def main():
         try:
                 fab_prepare_firewall()
                 fab_prepare_user()
+                fab_add_apt_sources()
                 fab_preseed_config(domain, email, mysqlpass)
                 fab_install_debs(sys.argv[1:])
                 run_provision_tests()
