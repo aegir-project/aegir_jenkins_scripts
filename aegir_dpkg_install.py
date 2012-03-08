@@ -35,6 +35,7 @@ config_size = config.get(provider, 'size')
 # These are used as options to Aegir during install
 email = config.get('Aegir', 'email')
 
+distro = os.environ['DIST'] or 'unstable'
 
 # Fabric command to install Aegir using apt_get
 def fab_preseed_config(domain, email, mysqlpass):
