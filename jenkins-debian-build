@@ -55,6 +55,8 @@ fi
 
 echo building aegir-${upstream_version} with key $KEY - build tag: ${BUILD_TAG}
 
+$simulate rm -f build-area/*
+
 if ! [ -z "$tag" ] ; then
     $simulate git-buildpackage -k${KEY}
 else
