@@ -118,7 +118,6 @@ def main(argv=None):
                         fab_fetch_drush(drush_version)
                         fab_fetch_provision('git', aegir_version)
                         fab_hostmaster_install(domain, email, mysqlpass)
-                        run_drush_cache_clear()
                         run_provision_tests()
                 except:
                         print "===> Test failure"
