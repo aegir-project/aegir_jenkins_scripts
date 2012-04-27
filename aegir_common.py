@@ -79,6 +79,10 @@ def run_site_tests():
         fab_install_site('drupal7', 'standard')
         fab_install_site('openatrium', 'openatrium')
 
+def run_drush_cache_clear():
+        print "===> Clearing Drush cache"
+        fabric.run("su - -s /bin/sh aegir -c '/var/aegir/drush/drush.php cache-clear drush -y'", pty=True)
+
 def run_provision_tests():
         print "===> Running Provision tests"
         fabric.run("su - -s /bin/sh aegir -c '/var/aegir/drush/drush.php @hostmaster provision-tests-run -y'", pty=True)
