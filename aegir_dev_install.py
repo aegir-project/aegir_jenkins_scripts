@@ -12,7 +12,7 @@ from libcloud.types import Provider
 from libcloud.providers import get_driver
 from libcloud.deployment import MultiStepDeployment, ScriptDeployment, SSHKeyDeployment
 from libcloud.ssh import SSHClient, ParamikoSSHClient
-from aegir_common import Usage, dependency_check, fab_prepare_firewall, fab_prepare_apache, fab_prepare_user, fab_fetch_drush, fab_run_dispatch, run_provision_tests, fab_fetch_provision, fab_hostmaster_installi, run_drush_cache_clear
+from aegir_common import Usage, dependency_check, fab_prepare_firewall, fab_prepare_apache, fab_prepare_user, fab_fetch_drush, fab_run_dispatch, run_provision_tests, fab_fetch_provision, fab_hostmaster_install, run_drush_cache_clear
 import os, sys, string, ConfigParser, socket, getopt
 import fabric.api as fabric
 import time
