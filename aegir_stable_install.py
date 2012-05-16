@@ -13,7 +13,7 @@ from libcloud.types import Provider
 from libcloud.providers import get_driver
 from libcloud.deployment import MultiStepDeployment, ScriptDeployment, SSHKeyDeployment
 from libcloud.ssh import SSHClient, ParamikoSSHClient
-from aegir_common import Usage, dependency_check, fab_prepare_firewall, fab_prepare_apache, fab_prepare_user, fab_fetch_drush, fab_install_platform, fab_install_site, fab_run_dispatch, run_platform_tests, run_site_tests, fab_fetch_provision, fab_hostmaster_install
+from aegir_common import Usage, dependency_check, fab_prepare_firewall, fab_prepare_apache, fab_prepare_user, fab_fetch_drush, fab_install_platform, fab_install_site, fab_run_dispatch, run_provision_tests, fab_fetch_provision, fab_hostmaster_install
 import os, sys, string, ConfigParser, socket, getopt
 import fabric.api as fabric
 import time
@@ -123,8 +123,7 @@ def main(argv=None):
                         fab_fetch_drush(drush_version)
                         fab_fetch_provision(release_type, aegir_version)
                         fab_hostmaster_install(domain, email, mysqlpass)
-                        run_platform_tests()
-                        run_site_tests()
+                        run_provision_tests()
                 except:
                         print "===> Test failure"
                         raise
