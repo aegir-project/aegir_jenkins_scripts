@@ -79,4 +79,4 @@ if $upload; then
         exit 1
     fi
 fi
-$simulate git checkout ${GIT_COMMIT}
+$simulate git reset --hard ${GIT_COMMIT} || true
