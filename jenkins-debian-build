@@ -72,7 +72,7 @@ if $upload; then
     $simulate dput -f aegir build-area/*.changes
     $simulate sleep 5
     debfile=`ls build-area | grep deb | head -1`
-    if [ -f /srv/reprepro/pool/main/a/aegir-provision*/$debfile ]; then
+    if [ -f /srv/reprepro/pool/main/a/aegir*-provision/$debfile ]; then
         echo "debian file built: $debfile"
     else
         echo "can't find debian file $debfile"
