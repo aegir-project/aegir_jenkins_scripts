@@ -57,7 +57,7 @@ fi
 
 echo building aegir-${jenkins_version} with key $KEY - build tag: ${BUILD_TAG}
 
-$simulate rm -f build-area/*
+$simulate rm -rf build-area/*
 
 if ! [ -z "$tag" ] ; then
     $simulate git-buildpackage -k${KEY}
