@@ -3,7 +3,8 @@
 # This script is designed to automatically build Debian packages for Jenkins
 #
 # It is used in the two following jobs:
-# D_aegir-debian-official
+# S_aegir-debian-official-3.x
+# S_aegir-debian-official
 # D_aegir-debian-auto
 
 DOMAIN=`hostname -f`
@@ -55,7 +56,7 @@ else
     jenkins_version="${version}+${BUILD_NUMBER}.${commit}"
 fi
 
-echo building aegir-${jenkins_version} with key $KEY - build tag: ${BUILD_TAG}
+echo "Building aegir-${jenkins_version} with key $KEY - build tag: ${BUILD_TAG}"
 
 $simulate rm -rf build-area/*
 
@@ -68,9 +69,13 @@ else
 fi
 
 if $upload; then
-    echo uploading package to aegir repository
+    echo "Uploading package to aegir repository"
     $simulate dput -f aegir build-area/*.changes
-    $simulate sleep 5
+
+    echo "Waiting 10 seconds to let reprepro pickup the new files"
+    $simulate sleep 10
+
+    # Check if we can find the new provision package in the right place.
     debfile=`ls build-area/ | grep provision | grep deb | head -1`
     if [ -f /srv/reprepro/pool/main/a/aegir*-provision/$debfile ]; then
         echo "debian file built: $debfile"
