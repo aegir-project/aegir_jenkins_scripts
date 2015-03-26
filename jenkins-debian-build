@@ -71,7 +71,7 @@ if $upload; then
     echo uploading package to aegir repository
     $simulate dput -f aegir build-area/*.changes
     $simulate sleep 5
-    debfile=`ls build-area/*provision* | grep deb | head -1`
+    debfile=`ls build-area/ | grep provision | grep deb | head -1`
     if [ -f /srv/reprepro/pool/main/a/aegir*-provision/$debfile ]; then
         echo "debian file built: $debfile"
     else
