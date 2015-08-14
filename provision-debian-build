@@ -1,3 +1,0 @@
-#!/bin/sh
-
-exec git-buildpackage --git-upstream-branch=origin/upstream --git-debian-branch=origin/debian --git-ignore-branch -kjenkins@ci.aegirproject.org
