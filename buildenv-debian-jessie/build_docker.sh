@@ -6,7 +6,7 @@ docker build -t aegir3_build_env .
 #export BUILD_NUMBER=42
 
 docker run \
-       --volume=/tmp/newpkg:/incoming \
+       --volume=/srv/reprepro/incoming:/incoming \
        --volume=/var/lib/jenkins/.gnupg:/root/.gnupg:ro \
        --env=BUILD_NUMBER=$BUILD_NUMBER \
        aegir3_build_env
