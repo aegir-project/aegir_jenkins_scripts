@@ -13,7 +13,7 @@ RUN cd /root; git clone --branch 7.x-3.x git://git.drupalcode.org/project/provis
 VOLUME ["/incoming"]
 COPY .dput.cf /root/
 
-COPY .gnupg/ /root/.gnupg/
+VOLUME ["/root/.gnupg"]
 
 # Build.
 CMD cd /root/provision; git pull; ../aegir_jenkins_scripts/jenkins-debian-build -k jenkins@ci.aegirproject.org -u
