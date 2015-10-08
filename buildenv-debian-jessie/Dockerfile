@@ -7,7 +7,7 @@ RUN apt-get install --yes git-core git-buildpackage
 
 RUN cd /root; git clone https://github.com/aegir-project/aegir_jenkins_scripts.git
 
-RUN cd /root; git clone --branch 7.x-3.x git://git.drupalcode.org/project/provision || git pull
+RUN cd /root; git clone --branch 7.x-3.x git://git.drupalcode.org/project/provision
 
 # the place where we drop the build packages.
 VOLUME ["/incoming"]
@@ -16,5 +16,5 @@ COPY .dput.cf /root/
 COPY .gnupg/ /root/.gnupg/
 
 # Build.
-CMD cd /root/provision; ../aegir_jenkins_scripts/jenkins-debian-build -k jenkins@ci.aegirproject.org -u
+CMD cd /root/provision; git pull; ../aegir_jenkins_scripts/jenkins-debian-build -k jenkins@ci.aegirproject.org -u
 
