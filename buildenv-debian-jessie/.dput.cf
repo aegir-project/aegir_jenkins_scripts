@@ -1,0 +1,4 @@
+[aegir]
+fqdn = debian2.aegirproject.org
+method = local
+incoming = /incoming
