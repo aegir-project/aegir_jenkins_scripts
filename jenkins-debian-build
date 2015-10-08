@@ -74,14 +74,5 @@ if $upload; then
 
     echo "Waiting 10 seconds to let reprepro pickup the new files"
     $simulate sleep 10
-
-    # Check if we can find the new provision package in the right place.
-    debfile=`ls build-area/ | grep provision | grep deb | head -1`
-    if [ -f /srv/reprepro/pool/main/a/aegir*-provision/$debfile ]; then
-        echo "debian file built: $debfile"
-    else
-        echo "can't find debian file $debfile"
-        exit 1
-    fi
 fi
 $simulate git reset --hard ${GIT_COMMIT} || true
