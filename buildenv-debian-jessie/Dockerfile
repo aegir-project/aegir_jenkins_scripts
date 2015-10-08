@@ -5,7 +5,7 @@ RUN apt-get install --yes devscripts build-essential debian-keyring
 
 RUN apt-get install --yes git-core git-buildpackage
 
-RUN cd /root; git clone https://github.com/aegir-project/aegir_jenkins_scripts.git
+RUN cd /root; git clone --branch 7.x-3.x https://github.com/aegir-project/aegir_jenkins_scripts.git
 
 RUN cd /root; git clone --branch 7.x-3.x git://git.drupalcode.org/project/provision
 
