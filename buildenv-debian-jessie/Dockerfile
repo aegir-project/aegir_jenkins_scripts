@@ -1,7 +1,7 @@
 FROM joeyh/debian-stable-amd64
 
 RUN apt-get update
-RUN apt-get install --yes devscripts build-essential debian-keyring
+RUN apt-get install --yes devscripts build-essential debian-keyring dh-systemd
 
 RUN apt-get install --yes git-core git-buildpackage
 
