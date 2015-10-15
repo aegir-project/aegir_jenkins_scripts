@@ -5,9 +5,15 @@ docker build -t aegir3_build_env .
 # Jenkins provides a build number.
 #export BUILD_NUMBER=42
 
+PWD=`pwd`
+SCRIPT_DIR=`dirname $PWD`
+PROVISION_DIR=`dirname $SCRIPT_DIR`/provision
+
 docker run \
        --volume=/srv/reprepro/incoming:/incoming \
        --volume=/var/lib/jenkins/.gnupg:/root/.gnupg:ro \
+       --volume=$PROVISION_DIR:/root/provision \
+       --volume=$SCRIPT_DIR:/root/aegir_jenkins_scripts \
        --env=BUILD_NUMBER=$BUILD_NUMBER \
        aegir3_build_env
 
