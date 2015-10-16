@@ -10,9 +10,9 @@ fi
 
 
 # Jenkins provides a build number, fallback to 42
-if [ -z "$BUILD_NUMBER" ]; then
-  export BUILD_NUMBER=42
-fi
+#if [ -z "$BUILD_NUMBER" ]; then
+#  export BUILD_NUMBER=42
+#fi
 
 PWD=`pwd`
 SCRIPT_DIR=`dirname $PWD`
