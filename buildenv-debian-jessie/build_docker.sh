@@ -2,8 +2,16 @@
 
 docker build -t aegir3_build_env .
 
-# Jenkins provides a build number.
-#export BUILD_NUMBER=42
+if [ $RET != 0 ]; then
+  echo "Building docker container failed, not starting package build."
+  exit 1
+fi
+
+
+# Jenkins provides a build number, fallback to 42
+if [ -z "$BUILD_NUMBER" ]; then
+  export BUILD_NUMBER=42
+fi
 
 PWD=`pwd`
 SCRIPT_DIR=`dirname $PWD`
