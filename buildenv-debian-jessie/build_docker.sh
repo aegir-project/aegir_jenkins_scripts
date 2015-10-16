@@ -2,7 +2,8 @@
 
 docker build -t aegir3_build_env .
 
-if [ $RET != 0 ]; then
+RET=$?
+if [ "$RET" != 0 ]; then
   echo "Building docker container failed, not starting package build."
   exit 1
 fi
